@@ -1,0 +1,9 @@
+client.0.batch.delay.avg=6
+client.0.batch.delay.cur=6
+client.0.batch.delay.max=6
+client.0.window.4194338.batch.delay.avg=0
+client.0.window.4194338.batch.delay.cur=0
+client.0.window.4194338.batch.delay.max=0
+client.0.window.4194338.damage.packets_sent=2
+client.0.window.4194338.encoding=auto
+client.0.window.4194338.encodings.core='webp', 'png', 'png/P', 'png/L', 'avif', 'rgb24', 'rgb32', 'jpeg', 'jpega'

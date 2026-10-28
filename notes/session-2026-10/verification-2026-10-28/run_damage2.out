@@ -1,0 +1,30 @@
+Xorg :177 pid=16946  server :177 pid=15865
+--- [cairo] client pid=976445: 
+[cairo] idle 20s:
+or reading (No such file or directory)
+pid=973665 cpu_ticks=-48 wall=20.0s avg_cpu=-2.40%
+pid=976445 cpu_ticks=5 wall=20.0s avg_cpu=0.25%
+[cairo] xclock alone 25s:
+pid=976445 cpu_ticks=11 wall=25.0s avg_cpu=0.44%
+   snapshot info_cairo_light.txt: 200 keys
+[cairo] xclock + xterm yes 30s (client / server / Xorg):
+pid=16946 cpu_ticks=2518 wall=30.0s avg_cpu=83.91%
+pid=15865 cpu_ticks=344 wall=30.0s avg_cpu=11.46%
+pid=976445 cpu_ticks=134 wall=30.0s avg_cpu=4.47%
+   snapshot info_cairo_heavy.txt: 200 keys
+run_damage2.sh: line 7: 979893 Terminated              DISPLAY=:177 setsid nohup xclock -update 1 -geometry 200x200+1300+0 > /dev/null 2>&1
+[cairo] draw-related log lines: 4 warnings/errors
+--- [gl] client pid=987775: ,467 OpenGL renderer 'llvmpipe (LLVM 17.0.6, 256 bits)' is greylisted,;,467  you may want to turn off OpenGL if you encounter bugs;
+[gl] idle 20s:
+pid=987775 cpu_ticks=5 wall=20.0s avg_cpu=0.25%
+[gl] xclock alone 25s:
+pid=987775 cpu_ticks=35 wall=25.0s avg_cpu=1.40%
+   snapshot info_gl_light.txt: 216 keys
+[gl] xclock + xterm yes 30s (client / server / Xorg):
+pid=16946 cpu_ticks=2502 wall=30.0s avg_cpu=83.39%
+pid=15865 cpu_ticks=342 wall=30.0s avg_cpu=11.40%
+pid=987775 cpu_ticks=1235 wall=30.0s avg_cpu=41.16%
+   snapshot info_gl_heavy.txt: 216 keys
+run_damage2.sh: line 7: 991131 Terminated              DISPLAY=:177 setsid nohup xclock -update 1 -geometry 200x200+1300+0 > /dev/null 2>&1
+[gl] draw-related log lines: 4 warnings/errors
+== done ==

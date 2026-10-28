@@ -116,12 +116,42 @@ index-0 stub is decoded (`:1183`) and the chunks are spliced back by index
 - *New candidate — per-chunk overhead*: one header per chunk, one tuple+append per
   chunk, and index splicing on receive; measurable with an `INLINE_SIZE` A/B.
 
-**Not measurable on this host:** the display/GL-dependent candidates (GL presentation
+**Not measurable on the first host:** the display/GL-dependent candidates (GL presentation
 loop that re-schedules itself while idle, `client/gtk3/opengl/glarea_backing.py:104-106`;
 Cairo per-frame surface allocation on the UI thread, `cairo/image.pyx:142-148`; the
 single draw thread serializing decode for all windows,
 `client/subsystem/window/draw.py:97-107`). They need a machine with PyGObject and an
-X server; the host used has neither and installing them requires root.
+X server; the first host used had neither.
+
+### Verification round (2026-10-28, afternoon) — `verification-2026-10-28.md`
+
+Run on harpia-dev1 (RHEL 8.10, system Xpra 6.5.2, Xorg dummy, PyGObject/pycairo/PyOpenGL present) as a
+local client/server pair on dummy displays, plus the Windows client 6.5.5 attached over SSH to a third
+test session. Full tables, scripts and raw `xpra info` snapshots are in `verification-2026-10-28.md`
+and `verification-2026-10-28/`.
+
+- **Windows 5-minute plan — done.** V1: `rencodeplus`/`lz4` `.pyd` present, server sees
+  `encoder=rencodeplus`, `compressor=lz4`. V2: GTK3 client with OpenGL 4.6 (Intel Iris Xe, win32 GL
+  context backend, `zerocopy=True`); the native win32 client is shipped but not used. `xpra info`:
+  `batch.min/max-delay=33/500`, av-sync off, scaling 1:1, no fallback keys; the Windows build has **no
+  video decoders** (webp/png/avif/rgb/jpeg only). Idle CPU: 0.4–0.5 % (cairo) vs 0.8–0.9 % (GL) of one
+  core; under a scrolling xterm: cairo 11.6–28.9 %, GL 22.7–27.6 % depending on the frame rate the
+  server picked.
+- **A1 (GL loop re-scheduling while idle) — refuted.** 30 s idle: zero `do_gl_show`/`on_render` calls,
+  client CPU 0.23 % (Linux) and 0.8–0.9 % (Windows).
+- **A3 (Cairo per-frame surface) — confirmed and quantified.** Network pixels are read-only, so
+  `make_image_surface()` never takes the `create_for_data` zero-copy branch: 274 µs (RGB24) / 1.42 ms
+  (ARGB32) per 1080p frame, 1.9 / 6.3 ms at 4K, versus 1 µs for a writable buffer and 183 µs for a plain
+  memcpy of the same frame. Only affects `--opengl=no`. Candidate code change: copy into a `bytearray`
+  and take the fast branch.
+- **N2 (per-chunk overhead) — dropped; B2 re-read.** An item above `INLINE_SIZE` is sent as **one**
+  raw packet plus a 44-byte stub (2 wire packets for 64 KB, 1 MB and 4 MB alike; `encode()` = 5.6 µs),
+  not as 32 KB slices. The receive-side slicing pattern does exist in 6.5.2 and `v6.5.5`, but master
+  already replaced it with `read_exact()`/`recv_into` (commit `1d4b31b139`, 2026-05-25, "#4873 use
+  socket.recv_into"), which is not on the 6.5.x release branch. Nothing to propose.
+- **D1/D2 — no effect in this setting.** `XPRA_BATCH_MAX_DELAY=100` left the batch delay where it was
+  (the default 500 ms cap was never approached on a LAN); server CPU under load was 13 % of one core.
+- **A5/B4 (single draw thread)** — see the Linux pair section of `verification-2026-10-28.md`.
 
 ## Artifacts
 
@@ -132,3 +162,12 @@ X server; the host used has neither and installing them requires root.
 | `notes/session-2026-10/perf-report.md` | Full 22-candidate report plus the measured corrections |
 | `notes/session-2026-10/bench_rencodeplus.py` | Benchmark script used for the encoder measurements |
 | `notes/session-2026-10/bench_rencodeplus.json` / `.md` | Raw benchmark results |
+| `notes/session-2026-10/verification-2026-10-28.md` | Verification round: Windows 5-minute plan, A1/A3/A5/N2/B2/D1 measurements and corrections |
+| `notes/session-2026-10/verification-2026-10-28/` | Scripts (`bench_cairo_surface.py`, `bench_chunking.py`, `cpu_sample.sh`, `run_damage2.sh`) and raw results (`*.json`, `info_*.txt`) |
+
+## Pending
+
+- Follow-up PR for #5080, on the maintainer's response (or silence).
+- Code candidate from A3: make `make_image_surface()` take the zero-copy branch for read-only network
+  buffers (copy into a `bytearray` once instead of converting per pixel); needs a before/after measurement
+  on the Windows client with `--opengl=no`.

@@ -1,0 +1,62 @@
+[
+ {
+  "inline_size": 32768,
+  "payload": 65536,
+  "wire_packets": 2,
+  "shape": [
+   [
+    0,
+    7,
+    0,
+    65536
+   ],
+   [
+    16,
+    0,
+    0,
+    44
+   ]
+  ],
+  "encode_median_us": 5.8
+ },
+ {
+  "inline_size": 32768,
+  "payload": 1048576,
+  "wire_packets": 2,
+  "shape": [
+   [
+    0,
+    7,
+    0,
+    1048576
+   ],
+   [
+    16,
+    0,
+    0,
+    44
+   ]
+  ],
+  "encode_median_us": 5.6
+ },
+ {
+  "inline_size": 32768,
+  "payload": 4194304,
+  "wire_packets": 2,
+  "shape": [
+   [
+    0,
+    7,
+    0,
+    4194304
+   ],
+   [
+    16,
+    0,
+    0,
+    44
+   ]
+  ],
+  "encode_median_us": 5.6
+ }
+]

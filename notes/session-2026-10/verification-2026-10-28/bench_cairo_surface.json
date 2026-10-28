@@ -1,0 +1,167 @@
+[
+ {
+  "size": "499x316",
+  "buffer": "bytes(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 19.5,
+  "make_surface_min_us": 19.1,
+  "make_plus_paint_med_us": 36.2
+ },
+ {
+  "size": "499x316",
+  "buffer": "bytes(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 106.5,
+  "make_surface_min_us": 106.0,
+  "make_plus_paint_med_us": 143.9
+ },
+ {
+  "size": "499x316",
+  "buffer": "memoryview(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 19.5,
+  "make_surface_min_us": 19.2,
+  "make_plus_paint_med_us": 36.3
+ },
+ {
+  "size": "499x316",
+  "buffer": "memoryview(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 106.5,
+  "make_surface_min_us": 106.0,
+  "make_plus_paint_med_us": 143.5
+ },
+ {
+  "size": "499x316",
+  "buffer": "bytearray(writable)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 1.1,
+  "make_surface_min_us": 1.0,
+  "make_plus_paint_med_us": 16.2
+ },
+ {
+  "size": "499x316",
+  "buffer": "bytearray(writable)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 1.0,
+  "make_surface_min_us": 1.0,
+  "make_plus_paint_med_us": 23.9
+ },
+ {
+  "size": "499x316",
+  "buffer": "baseline",
+  "fmt": "-",
+  "alloc_med_us": 6.4,
+  "memcpy_med_us": 13.7
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "bytes(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 273.6,
+  "make_surface_min_us": 264.6,
+  "make_plus_paint_med_us": 456.0
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "bytes(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 1419.6,
+  "make_surface_min_us": 1415.5,
+  "make_plus_paint_med_us": 1867.0
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "memoryview(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 269.0,
+  "make_surface_min_us": 265.8,
+  "make_plus_paint_med_us": 456.3
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "memoryview(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 1416.7,
+  "make_surface_min_us": 1412.9,
+  "make_plus_paint_med_us": 1867.8
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "bytearray(writable)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 1.0,
+  "make_surface_min_us": 0.9,
+  "make_plus_paint_med_us": 179.9
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "bytearray(writable)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 1.0,
+  "make_surface_min_us": 0.9,
+  "make_plus_paint_med_us": 277.5
+ },
+ {
+  "size": "1920x1080",
+  "buffer": "baseline",
+  "fmt": "-",
+  "alloc_med_us": 85.3,
+  "memcpy_med_us": 182.8
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "bytes(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 1872.4,
+  "make_surface_min_us": 1854.3,
+  "make_plus_paint_med_us": 3923.4
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "bytes(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 6317.3,
+  "make_surface_min_us": 6284.7,
+  "make_plus_paint_med_us": 8689.7
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "memoryview(readonly)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 1803.1,
+  "make_surface_min_us": 1774.2,
+  "make_plus_paint_med_us": 3966.1
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "memoryview(readonly)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 6332.0,
+  "make_surface_min_us": 6160.0,
+  "make_plus_paint_med_us": 8585.1
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "bytearray(writable)",
+  "fmt": "RGB24",
+  "make_surface_med_us": 1.0,
+  "make_surface_min_us": 0.9,
+  "make_plus_paint_med_us": 2114.4
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "bytearray(writable)",
+  "fmt": "ARGB32",
+  "make_surface_med_us": 1.0,
+  "make_surface_min_us": 0.9,
+  "make_plus_paint_med_us": 1145.6
+ },
+ {
+  "size": "3840x2160",
+  "buffer": "baseline",
+  "fmt": "-",
+  "alloc_med_us": 780.8,
+  "memcpy_med_us": 1186.1
+ }
+]

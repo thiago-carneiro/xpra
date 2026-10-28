@@ -1,0 +1,15 @@
+client.0.batch.delay.avg=10
+client.0.batch.delay.cur=12
+client.0.batch.delay.max=12
+client.0.window.4194338.batch.delay.avg=17
+client.0.window.4194338.batch.delay.cur=50
+client.0.window.4194338.batch.delay.max=51
+client.0.window.4194338.damage.packets_sent=4
+client.0.window.4194338.encoding=auto
+client.0.window.4194338.encodings.core='webp', 'png', 'png/P', 'png/L', 'avif', 'rgb24', 'rgb32', 'jpeg', 'jpega'
+client.0.window.6291490.batch.delay.avg=23
+client.0.window.6291490.batch.delay.cur=32
+client.0.window.6291490.batch.delay.max=32
+client.0.window.6291490.damage.packets_sent=1005
+client.0.window.6291490.encoding=auto
+client.0.window.6291490.encodings.core='webp', 'png', 'png/P', 'png/L', 'avif', 'rgb24', 'rgb32', 'jpeg', 'jpega'

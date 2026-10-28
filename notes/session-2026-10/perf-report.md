@@ -88,3 +88,26 @@ Round-trip verificado (campo `draw` byte-equal em 64KB; comprimento em 1/4MB). C
 - **B2 (padrão de cópia do read path): PROMOVIDO** — o wire path fatia um frame de 4MB em ~128 chunks de 32KB (`INLINE_SIZE`), cada um com header próprio; o read path processa centenas de mini-packets por frame — exatamente o cenário denso onde o padrão de slicing copia ~90-162× o tamanho do stream e a alternativa com offsets é **24× mais rápida** (473,7µs → 19,8µs por leitura de 128KB).
 - **Novo candidato N2 — overhead por chunk**: header por chunk (527-568), tupla+append por chunk e splice por índice na recepção (1206-1211). Medir: nº de chunks por frame e custo do splice; A/B com `INLINE_SIZE` maior.
 - `memoryview_to_bytes`: 1MB 34.1µs; 4MB 243.5µs (só relevante in-band).
+
+---
+
+## Verificação (28/10/2026, tarde) — harpia-dev1 + cliente Windows 6.5.5
+
+Detalhes, tabelas e scripts em `verification-2026-10-28.md` / `verification-2026-10-28/`. Estado dos candidatos
+após a medição:
+
+| item | veredito | evidência |
+|---|---|---|
+| V1 fast-path nativo | **presente** | `.pyd` de rencodeplus/lz4 no 6.5.5; servidor vê `encoder=rencodeplus`, `compressor=lz4` |
+| V2 backend | **GTK3 + OpenGL** (win32 só como backend de contexto GL) | log do cliente; `Xpra_cmd.exe opengl` safe/zerocopy |
+| V3 fallback de vídeo | n/a neste build | cliente Windows não tem decoders de vídeo (`encodings.core` = webp/png/avif/rgb/jpeg); nenhuma chave `fallback` |
+| A1 loop GL em idle | **REFUTADO** | 30 s idle: +0 `do_gl_show`/`on_render`; CPU 0,23 % (Linux), 0,8–0,9 % (Windows) |
+| A3 superfície cairo por frame | **CONFIRMADO, maior que o estimado** | buffer readonly → ramo lento: 274 µs (RGB24) / 1,42 ms (ARGB32) por frame 1080p, 6,3 ms em 4K; 1 µs se writable; memcpy = 183 µs |
+| N2 overhead por chunk | **CAI** | item > INLINE_SIZE sai como 1 pacote raw + stub de 44 B (2 pacotes para 64 KB, 1 MB e 4 MB); `encode()` = 5,6 µs |
+| B2 cópias no read path | válido em 6.5.x, **já corrigido no master** | `read_exact`/`recv_into` (commit `1d4b31b139`, 2026-05-25, #4873), ausente na branch 6.5.x |
+| D1 batching reativo | **sem efeito em LAN** | `XPRA_BATCH_MAX_DELAY=100` não muda o delay (nunca chegou perto de 500) |
+| D2 servidor saturado | **não observado** | 13 % de um core sob xterm rolando |
+| A5/B4 draw thread única | ver seção do par Linux em `verification-2026-10-28.md` | |
+
+A correção mais importante é na premissa de B2/N2: o payload de draw **não** é fatiado em 32 KB; `INLINE_SIZE` só
+decide inline vs. out-of-band, e o out-of-band é um único pacote raw.
