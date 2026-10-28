@@ -1,0 +1,113 @@
+{
+  "enabled": [
+    "rencodeplus",
+    "none"
+  ],
+  "caps": {
+    "rencodeplus": {
+      "": true
+    },
+    "yaml": {
+      "": false
+    },
+    "none": {
+      "": true
+    }
+  },
+  "rows": [
+    {
+      "encoder": "rencodeplus",
+      "payload": "control",
+      "payload_bytes": 0,
+      "encoded_bytes": 59,
+      "ratio_vs_payload": null,
+      "encode_min_us": 1.6,
+      "encode_median_us": 1.8,
+      "decode_min_us": 0.6,
+      "decode_median_us": 0.7,
+      "buffer": {
+        "type": "bytes",
+        "len": 59,
+        "has_data_attr": false,
+        "has_size_attr": false
+      }
+    },
+    {
+      "encoder": "rencodeplus",
+      "payload": "64KB",
+      "payload_bytes": 65536,
+      "encoded_bytes": 65606,
+      "ratio_vs_payload": 1.001068115234375,
+      "encode_min_us": 4.4,
+      "encode_median_us": 4.4,
+      "decode_min_us": 2.8,
+      "decode_median_us": 2.9,
+      "buffer": {
+        "type": "bytes",
+        "len": 65606,
+        "has_data_attr": false,
+        "has_size_attr": false
+      }
+    },
+    {
+      "encoder": "rencodeplus",
+      "payload": "1024KB",
+      "payload_bytes": 1048576,
+      "encoded_bytes": 1048648,
+      "ratio_vs_payload": 1.0000686645507812,
+      "encode_min_us": 53.3,
+      "encode_median_us": 59.2,
+      "decode_min_us": 32.8,
+      "decode_median_us": 33.0,
+      "buffer": {
+        "type": "bytes",
+        "len": 1048648,
+        "has_data_attr": false,
+        "has_size_attr": false
+      }
+    },
+    {
+      "encoder": "rencodeplus",
+      "payload": "4096KB",
+      "payload_bytes": 4194304,
+      "encoded_bytes": 4194376,
+      "ratio_vs_payload": 1.0000171661376953,
+      "encode_min_us": 259.8,
+      "encode_median_us": 264.1,
+      "decode_min_us": 274.8,
+      "decode_median_us": 278.8,
+      "buffer": {
+        "type": "bytes",
+        "len": 4194376,
+        "has_data_attr": false,
+        "has_size_attr": false
+      }
+    }
+  ],
+  "buffer_inspect": {
+    "type": "bytes",
+    "len": 59,
+    "has_data_attr": false,
+    "has_size_attr": false
+  },
+  "none_constant_check": [
+    {
+      "payload": 0,
+      "encoded_bytes": 40,
+      "encode_median_us": 3.5
+    },
+    {
+      "payload": 4194304,
+      "encoded_bytes": 45,
+      "encode_median_us": 3.7
+    }
+  ],
+  "memoryview_to_bytes": {
+    "1024KB": {
+      "median_us": 34.1
+    },
+    "4096KB": {
+      "median_us": 243.5
+    }
+  }
+}
