@@ -139,11 +139,12 @@ and `verification-2026-10-28/`.
   server picked.
 - **A1 (GL loop re-scheduling while idle) — refuted.** 30 s idle: zero `do_gl_show`/`on_render` calls,
   client CPU 0.23 % (Linux) and 0.8–0.9 % (Windows).
-- **A3 (Cairo per-frame surface) — confirmed and quantified.** Network pixels are read-only, so
-  `make_image_surface()` never takes the `create_for_data` zero-copy branch: 274 µs (RGB24) / 1.42 ms
-  (ARGB32) per 1080p frame, 1.9 / 6.3 ms at 4K, versus 1 µs for a writable buffer and 183 µs for a plain
-  memcpy of the same frame. Only affects `--opengl=no`. Candidate code change: copy into a `bytearray`
-  and take the fast branch.
+- **A3 (Cairo per-frame surface) — slow branch quantified, then refuted as a live issue.** A read-only
+  buffer makes `make_image_surface()` skip the `create_for_data` zero-copy branch: 274 µs (RGB24) /
+  1.42 ms (ARGB32) per 1080p frame, 1.9 / 6.3 ms at 4K, versus 1 µs writable. But a before/after run on
+  the Windows client (pure-Python `backing.py` override with a per-buffer-type counter) showed 99.9 % of
+  paints arriving as writable memoryviews from the decoders; the only read-only paint per session is a
+  6×13 px rgb24 rectangle. No measurable CPU change. Dropped.
 - **N2 (per-chunk overhead) — dropped; B2 re-read.** An item above `INLINE_SIZE` is sent as **one**
   raw packet plus a 44-byte stub (2 wire packets for 64 KB, 1 MB and 4 MB alike; `encode()` = 5.6 µs),
   not as 32 KB slices. The receive-side slicing pattern does exist in 6.5.2 and `v6.5.5`, but master
@@ -151,7 +152,12 @@ and `verification-2026-10-28/`.
   socket.recv_into"), which is not on the 6.5.x release branch. Nothing to propose.
 - **D1/D2 — no effect in this setting.** `XPRA_BATCH_MAX_DELAY=100` left the batch delay where it was
   (the default 500 ms cap was never approached on a LAN); server CPU under load was 13 % of one core.
-- **A5/B4 (single draw thread)** — see the Linux pair section of `verification-2026-10-28.md`.
+- **A5/B4 (single draw thread) — mechanism confirmed, small effect.** On the Windows client with a
+  light window (xclock) next to a heavy one (1399×914 webp at ~28 fps, decode p50 7.4 / p99 14.6 ms),
+  the light window's ack latency went from 28 to 32 ms. Not reproduced at all on the Linux pair with h264.
+- **Alternative clients** (rust-xpra, go-xpra, xpra-html5, vispra) surveyed in
+  `alt-clients-2026-10-28.md`: all three Xpra-org clients now require server 7.0+, none replaces the
+  Windows GTK client, and no Rust/Go toolchain exists on the hosts.
 
 ## Artifacts
 
@@ -164,10 +170,12 @@ and `verification-2026-10-28/`.
 | `notes/session-2026-10/bench_rencodeplus.json` / `.md` | Raw benchmark results |
 | `notes/session-2026-10/verification-2026-10-28.md` | Verification round: Windows 5-minute plan, A1/A3/A5/N2/B2/D1 measurements and corrections |
 | `notes/session-2026-10/verification-2026-10-28/` | Scripts (`bench_cairo_surface.py`, `bench_chunking.py`, `cpu_sample.sh`, `run_damage2.sh`) and raw results (`*.json`, `info_*.txt`) |
+| `notes/session-2026-10/alt-clients-2026-10-28.md` | Survey of rust-xpra, go-xpra, xpra-html5 and vispra (activity, features, drift vs docs/Usage/Clients.md) |
 
 ## Pending
 
 - Follow-up PR for #5080, on the maintainer's response (or silence).
-- Code candidate from A3: make `make_image_surface()` take the zero-copy branch for read-only network
-  buffers (copy into a `bytearray` once instead of converting per pixel); needs a before/after measurement
-  on the Windows client with `--opengl=no`.
+- Ack latency over SSH varied between 39 and 250 ms across otherwise identical Windows runs: compare
+  `ssh://` against `tcp://` in the same scenario before looking at client code again.
+- Intermittent `attach` timeout with the client's default SSH remote command (3 of 4 attempts in the
+  evening round; `--remote-xpra=/usr/bin/xpra` always worked). Report upstream if it recurs in normal use.

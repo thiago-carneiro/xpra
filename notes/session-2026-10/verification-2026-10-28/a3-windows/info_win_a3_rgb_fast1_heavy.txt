@@ -1,0 +1,9 @@
+client.0.batch.delay.avg=32
+client.0.batch.delay.cur=36
+client.0.window.6291490.batch.client-latency.avg=224
+client.0.window.6291490.batch.client-latency.recent=230
+client.0.window.6291490.batch.delay.avg=32
+client.0.window.6291490.damage.packets_sent=845
+client.0.window.6291490.damage.fps=561
+client.0.window.6291490.encoding=webp
+client.0.window.6291490.encoding.pixels_encoded_per_second=222295938

@@ -165,6 +165,69 @@ remote logging ligado o `-d paint` inundou o servidor com 290 k pacotes de log e
 (2) o snapshot do servidor tirado **antes** de fechar a janela pesada (neste script o xterm é fechado antes
 do snapshot, por isso só a janela leve aparece nas tabelas acima).
 
+## Windows, 2ª rodada (noite): A3 ao vivo e A5 com a metodologia corrigida
+
+Artefatos em `verification-2026-10-28/a3-windows/`. Servidor `:179` reiniciado (xterm inicial), cliente
+6.5.5 `--opengl=no`, carga = `xterm -geometry 230x70 -e yes` (janela de 1399×914; o servidor escolheu
+**webp**, já que este build não tem decoders de vídeo).
+
+### A3 — teste antes/depois (REFUTADO como problema real; o microbenchmark mediu um ramo que quase não é usado)
+
+Correção experimental em Python puro: `backing.py.a3-experiment` substitui `xpra/cairo/backing.py` (um
+`.py` ao lado do `.pyc` tem precedência no import) e, antes de `make_image_surface()`, copia buffers
+readonly para `bytearray` para habilitar o ramo `create_for_data`. Chave `XPRA_CAIRO_A3=0/1` e contador por
+tipo de buffer logado a cada 250 paints. Não precisa recompilar o `.pyd`: isso elimina a questão do
+cross-compile (nem harpia-dev1 nem harpia-dev3 têm `x86_64-w64-mingw32-gcc`; o gcc 15 de `/opt/rh` do dev3
+é `x86_64-redhat-linux`, e faltariam os headers do Python 3.14/cairo do MSYS2).
+
+| rodada (`--encoding`) | A3 | CPU cliente | draws enviados | caminhos de paint (contador) |
+|---|---|---|---|---|
+| auto | off | 32,4 % | 1035 | `writable:memoryview` 999, `readonly-slow:bytes` 1 |
+| auto | on | 22,0 % | 843 | `writable:memoryview` 749, `copied:bytes` 1 |
+| rgb | off | 6,1 % | 13 (anômalo: servidor quase não enviou) | `writable:memoryview` 12, `readonly-slow:bytes` 1 |
+| rgb | on | 27,4 % | 845 (servidor reportou `encoding=webp`) | `writable:memoryview` 749, `copied:bytes` 1 |
+
+- **99,9 % dos paints chegam como `memoryview` gravável** — saída dos decoders (webp) e do descompressor
+  lz4 — e já tomam o ramo zero-copy. O único paint readonly por sessão é um retângulo `rgb24` de **6×13 px
+  (312 bytes)**, para o qual o ramo lento custa microssegundos.
+- A premissa "pixels da rede são readonly" vale para o `bytes` cru, mas o cliente 6.5.5 não entrega `bytes`
+  cru ao cairo no caminho normal. O microbenchmark A3 continua correto como medida do ramo lento, mas o ramo
+  lento não está no caminho quente. **A3 sai da lista; a correção não vale um PR.**
+- A diferença de CPU entre rodadas (32 → 22 → 27 %) acompanha o número de frames (1035 / 843 / 845), não a
+  chave A3: ≈ 0,8–0,97 s de CPU por 1000 frames nos três casos.
+
+### A5/B4 — bloqueio head-of-line no Windows (`-d paint --remote-logging=no`)
+
+Janela leve = `xclock -update 1` (200×200, webp, decode médio 4,4 ms); janela pesada = o xterm acima.
+`client-latency` da janela leve lido do servidor **com a janela pesada ainda aberta**:
+
+| fase | client-latency xclock (avg / recent) | CPU cliente |
+|---|---|---|
+| xclock só | 28 / 28 ms | 0,56 % |
+| xclock + xterm `yes` | 32 / 31 ms | 41,8 % (inclui o custo do `-d paint`: 14 468 linhas) |
+
+Janela pesada: 1016 frames webp 1399×914 em ~36 s (~28 fps), decode **p50 7,4 / p90 11,8 / p99 14,6 /
+máx 21,2 ms** (199 frames acima de 10 ms), `client-latency` avg 39 ms.
+
+- O efeito head-of-line existe e tem o tamanho esperado: **+4 ms** na média da janela leve, ou seja, um frame
+  leve espera em média cerca de meio decode da janela pesada na fila única. Com uma janela pesada a ~28 fps
+  isso é imperceptível; cresce linearmente com (fps × decode) das janelas pesadas e só viraria problema com
+  várias janelas grandes atualizando ao mesmo tempo ou com decode mais caro (png/jpeg grandes, 4K).
+- **Veredito: mecanismo confirmado, impacto pequeno neste build.** Não justifica paralelizar a draw thread
+  (o GIL limitaria o ganho de qualquer forma); a alavanca real seria ter decoders de vídeo no build Windows.
+- Observação lateral: nas rodadas A3 sem `-d paint`, o `client-latency` da janela pesada ficou em
+  **224–253 ms** (vs 39 ms na rodada A5) com o mesmo fps. Como a métrica inclui o transporte ssh e o ack,
+  a variação sugere que o enfileiramento está no canal ssh, não no cliente; fica como pergunta aberta.
+
+### Observação sobre o harness: timeout intermitente do `attach` por ssh
+
+Nesta rodada, 3 de 4 tentativas de `Xpra_cmd.exe attach ssh://…/179` com o comando remoto padrão do cliente
+(`sh -c 'if command -v "xpra" …; then xpra _proxy "179" …'`) terminaram em `connection timed out` com
+`0 packets received`, sem nenhuma conexão registrada no log do servidor, enquanto `ssh.exe` puro e
+`--remote-xpra=/usr/bin/xpra` funcionaram sempre. Todas as medições acima usaram `--remote-xpra=/usr/bin/xpra`.
+Não investigado além disso; se reaparecer no uso normal, é um sintoma a reportar upstream (o `-d ssh` do
+cliente mostra o comando exato).
+
 ## Resumo dos vereditos
 
 | item | antes (estático) | depois (medido) |
@@ -173,13 +236,16 @@ do snapshot, por isso só a janela leve aparece nas tabelas acima).
 | V2 backend | desconhecido | GTK3 + OpenGL (win32 só como contexto GL) |
 | V3 fallback de vídeo | hipótese | n/a: o build Windows não tem decoders de vídeo |
 | A1 loop GL em idle | ALTO | **refutado** (0 renders em 30 s idle) |
-| A3 superfície cairo | MÉDIO-ALTO | **confirmado**: 0,27–1,4 ms/frame 1080p, 1,9–6,3 ms em 4K, só `--opengl=no`; fix pequeno (copiar p/ bytearray) |
-| A5/B4 draw thread | MÉDIO-ALTO | não reproduzido com h264; pendente no Windows (webp/jpeg) |
+| A3 superfície cairo | MÉDIO-ALTO | ramo lento é real (0,27–1,4 ms/frame 1080p) **mas não está no caminho quente**: 99,9 % dos paints chegam graváveis; antes/depois no Windows sem efeito. **Cai** |
+| A5/B4 draw thread | MÉDIO-ALTO | mecanismo confirmado, impacto pequeno: +4 ms na janela leve ao lado de uma pesada a ~28 fps (decode webp p50 7,4 ms) |
 | B1 cópia antes do decode | rebaixado | mantido rebaixado (draw é out-of-band) |
 | B2 fatiamento no read path | promovido | válido em 6.5.x, **já corrigido no master** (#4873) — nada a propor |
 | N2 overhead por chunk | novo | **cai**: 1 pacote raw por item, 5,6 µs |
 | D1 batching reativo | ALTO | sem efeito em LAN (cap nunca atingido) |
 | D2 servidor saturado | ALTO | não observado (9–13 % de um core) |
 
-Ordem sugerida para a próxima fase: A3 (único candidato de código confirmado, com medida antes/depois
-direta no Windows `--opengl=no`), depois A5 no Windows com a metodologia corrigida acima.
+Depois da 2ª rodada no Windows não resta nenhum candidato de código do cliente com ganho demonstrado. O que
+sobrou de concreto: (1) o build Windows não tem decoders de vídeo, e isso define o custo por frame
+(webp 1399×914 ≈ 7–12 ms); (2) a latência de ack sobre ssh varia de 39 a 250 ms entre rodadas iguais —
+é a próxima coisa a medir, comparando `ssh://` com `tcp://` no mesmo cenário; (3) o timeout intermitente do
+`attach` por ssh descrito acima.

@@ -1,0 +1,24 @@
+===== A3 before/after (opengl=no) =====
+[a3_auto_fast0] cpu_s=9,73 wall_s=30,0 avg_cpu=32,42% ws_MB=131
+   snapshot a3_auto_fast0_heavy: 25 keys
+   paint path stats: A3 paint path stats (fast=False, total=1000): {'writable:memoryview': 999, 'readonly-slow:bytes': 1}
+[a3_auto_fast1] cpu_s=6,61 wall_s=30,0 avg_cpu=22,02% ws_MB=132
+   snapshot a3_auto_fast1_heavy: 25 keys
+   paint path stats: A3 paint path stats (fast=True, total=750): {'writable:memoryview': 749, 'copied:bytes': 1}
+[a3_rgb_fast0] cpu_s=1,83 wall_s=30,0 avg_cpu=6,09% ws_MB=129
+   snapshot a3_rgb_fast0_heavy: 1 keys
+   paint path stats: A3 paint path stats (fast=False, total=13): {'writable:memoryview': 12, 'readonly-slow:bytes': 1}
+[a3_rgb_fast1] cpu_s= wall_s=30,0 avg_cpu=0,00% ws_MB=0
+Get-Content : N∆o Ç poss°vel localizar o caminho 'C:\Users\u4w7\AppData\Local\Temp\claude\c--Users-u4w7\275337e8-7be7-4
+b47-8c64-859ff7297b57\scratchpad\a3\a3_rgb_fast1_heavy.txt' porque ele n∆o existe.
+   ception
+   snapshot a3_rgb_fast1_heavy: 0 keys
+   paint path stats: 
+===== A5 head-of-line (opengl=no, -d paint, remote-logging=no) =====
+[a5_paint idle] cpu_s=1,75 wall_s=15,0 avg_cpu=11,66% ws_MB=124
+[a5_paint xclock only] cpu_s=0,14 wall_s=25,0 avg_cpu=0,56% ws_MB=124
+   snapshot a5_paint_light: 25 keys
+[a5_paint xclock + xterm yes] cpu_s=12,53 wall_s=30,0 avg_cpu=41,75% ws_MB=124
+   snapshot a5_paint_heavy: 36 keys
+log lines: 14468
+===== done =====

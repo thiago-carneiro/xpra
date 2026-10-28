@@ -102,12 +102,12 @@ após a medição:
 | V2 backend | **GTK3 + OpenGL** (win32 só como backend de contexto GL) | log do cliente; `Xpra_cmd.exe opengl` safe/zerocopy |
 | V3 fallback de vídeo | n/a neste build | cliente Windows não tem decoders de vídeo (`encodings.core` = webp/png/avif/rgb/jpeg); nenhuma chave `fallback` |
 | A1 loop GL em idle | **REFUTADO** | 30 s idle: +0 `do_gl_show`/`on_render`; CPU 0,23 % (Linux), 0,8–0,9 % (Windows) |
-| A3 superfície cairo por frame | **CONFIRMADO, maior que o estimado** | buffer readonly → ramo lento: 274 µs (RGB24) / 1,42 ms (ARGB32) por frame 1080p, 6,3 ms em 4K; 1 µs se writable; memcpy = 183 µs |
+| A3 superfície cairo por frame | ramo lento real, **mas fora do caminho quente — CAI** | microbench: 274 µs (RGB24) / 1,42 ms (ARGB32) por frame 1080p readonly; ao vivo no Windows 99,9 % dos paints chegam graváveis (saída dos decoders) e o antes/depois não muda a CPU |
 | N2 overhead por chunk | **CAI** | item > INLINE_SIZE sai como 1 pacote raw + stub de 44 B (2 pacotes para 64 KB, 1 MB e 4 MB); `encode()` = 5,6 µs |
 | B2 cópias no read path | válido em 6.5.x, **já corrigido no master** | `read_exact`/`recv_into` (commit `1d4b31b139`, 2026-05-25, #4873), ausente na branch 6.5.x |
 | D1 batching reativo | **sem efeito em LAN** | `XPRA_BATCH_MAX_DELAY=100` não muda o delay (nunca chegou perto de 500) |
 | D2 servidor saturado | **não observado** | 13 % de um core sob xterm rolando |
-| A5/B4 draw thread única | ver seção do par Linux em `verification-2026-10-28.md` | |
+| A5/B4 draw thread única | mecanismo confirmado, **impacto pequeno** | Windows: janela leve 28 → 32 ms de latência ao lado de uma pesada (webp 1399×914, ~28 fps, decode p50 7,4 ms); Linux/h264: nenhum efeito |
 
 A correção mais importante é na premissa de B2/N2: o payload de draw **não** é fatiado em 32 KB; `INLINE_SIZE` só
 decide inline vs. out-of-band, e o out-of-band é um único pacote raw.
