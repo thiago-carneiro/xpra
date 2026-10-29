@@ -1,0 +1,6 @@
+client.0.window.6291490.batch.client-latency.avg=28
+client.0.window.6291490.batch.client-latency.recent=23
+client.0.window.6291490.batch.delay.avg=28
+client.0.window.6291490.batch.delay.max=30
+client.0.window.6291490.damage.packets_sent=1131
+client.0.window.6291490.damage.fps=30
